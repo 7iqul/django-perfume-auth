@@ -1,0 +1,54 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}Your cart | Ambre Perfumes{% endblock %}
+
+{% block head %}
+<style>
+.cart{max-width:820px}
+.item{display:grid;grid-template-columns:1fr auto auto auto;gap:24px;align-items:center;padding:20px 0;border-bottom:1px solid rgba(242,217,201,.12)}
+.item h3{font-size:1.5rem;line-height:1.2}
+.item h3 a{text-decoration:none}
+.item h3 a:hover{color:var(--amber)}
+.qty{color:var(--mist)}
+.total{display:flex;justify-content:space-between;align-items:baseline;padding:28px 0}
+.total .price{font-size:2.2rem}
+.empty-cart p{color:var(--mist);margin-bottom:24px}
+@media (max-width:600px){.item{grid-template-columns:1fr auto;gap:10px}}
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="page">
+  <h1>Your cart</h1>
+
+  <div class="cart">
+    {% for item in items %}
+    <div class="item">
+      <div>
+        <h3><a href="{% url 'detail' item.perfume.id %}">{{ item.perfume.name }}</a></h3>
+        <p class="brand">{{ item.perfume.brand }} - {{ item.perfume.size_ml }} ml</p>
+      </div>
+      <span class="qty">x {{ item.qty }}</span>
+      <span class="price">{{ item.subtotal }} SAR</span>
+      <form method="post" action="{% url 'remove_from_cart' item.perfume.id %}">
+        {% csrf_token %}
+        <button class="link-btn">Remove</button>
+      </form>
+    </div>
+    {% empty %}
+    <div class="empty-cart">
+      <p>Your cart is empty. Pick a scent and it will show up here.</p>
+      <a class="btn" href="{% url 'home' %}#collection">Browse perfumes</a>
+    </div>
+    {% endfor %}
+
+    {% if items %}
+    <div class="total">
+      <span>Total</span>
+      <span class="price">{{ total }} SAR</span>
+    </div>
+    <a class="btn" href="{% url 'home' %}#collection">Keep shopping</a>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}

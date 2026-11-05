@@ -1,0 +1,16 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}Sign up | Ambre Perfumes{% endblock %}
+
+{% block content %}
+<main class="page">
+  <h1>Create an account</h1>
+
+  <form class="auth" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="add">Sign up</button>
+    <p class="switch">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+  </form>
+</main>
+{% endblock %}

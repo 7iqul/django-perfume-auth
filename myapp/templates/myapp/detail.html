@@ -1,0 +1,49 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}{{ perfume.name }} | Ambre Perfumes{% endblock %}
+
+{% block head %}
+<style>
+.detail{display:grid;grid-template-columns:.8fr 1.2fr;gap:60px;align-items:center;max-width:960px}
+.detail svg{width:min(240px,60vw);height:auto;display:block;margin:auto}
+.detail:hover .cap{transform:translateY(-14px) rotate(-10deg)}
+.detail h1{margin-bottom:4px}
+.detail .desc{margin:20px 0;max-width:34em}
+.meta{display:flex;gap:20px;align-items:baseline;margin:16px 0 24px}
+.back{display:inline-block;margin-top:28px;color:var(--mist)}
+@media (max-width:800px){.detail{grid-template-columns:1fr;gap:30px}}
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="page">
+  <div class="detail">
+    <svg viewBox="0 0 200 300" aria-hidden="true">
+      <g class="cap">
+        <rect x="80" y="10" width="40" height="36" rx="6" fill="#e8a24a"/>
+        <rect x="88" y="46" width="24" height="16" fill="#b97c2c"/>
+      </g>
+      <rect x="30" y="62" width="140" height="220" rx="28" fill="rgba(242,217,201,.08)" stroke="#f2d9c9" stroke-opacity=".5" stroke-width="2"/>
+      <rect class="liquid" style="--i:{{ perfume.id }}" x="38" y="130" width="124" height="144" rx="22" fill="url(#amber)"/>
+      <rect x="52" y="80" width="10" height="180" rx="5" fill="#fff" opacity=".18"/>
+    </svg>
+
+    <div>
+      <h1>{{ perfume.name }}</h1>
+      <p class="brand">{{ perfume.brand }}</p>
+      <div class="meta">
+        <span class="price">{{ perfume.price }} SAR</span>
+        <span class="size">{{ perfume.size_ml }} ml</span>
+        {% if perfume.in_stock %}<span class="tag">In stock</span>{% else %}<span class="tag out">Sold out</span>{% endif %}
+      </div>
+      <p class="desc">{{ perfume.description|default:"No description yet." }}</p>
+
+      <form method="post" action="{% url 'add_to_cart' perfume.id %}">
+        {% csrf_token %}
+        <button class="add" {% if not perfume.in_stock %}disabled{% endif %}>Add to cart</button>
+      </form>
+      <a class="back" href="{% url 'home' %}#collection">Back to the collection</a>
+    </div>
+  </div>
+</main>
+{% endblock %}

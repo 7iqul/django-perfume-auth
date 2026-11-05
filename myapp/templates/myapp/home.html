@@ -1,0 +1,126 @@
+{% extends 'myapp/base.html' %}
+
+{% block head %}
+<style>
+/* ---------- Hero: the spray moment ---------- */
+.hero{min-height:100vh;display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:40px;padding:120px 6vw 60px;background:radial-gradient(circle at 75% 45%,var(--plum),var(--ink) 65%);overflow:hidden}
+h1{font-size:clamp(3.2rem,7.5vw,6.4rem);line-height:1;filter:blur(18px);opacity:0;animation:clear 1.8s ease-out .7s forwards}
+.hero p{max-width:30em;color:var(--mist);margin:24px 0 32px;opacity:0;animation:fade 1s ease 1.8s forwards}
+.hero .btn{opacity:0;animation:fade 1s ease 2.2s forwards}
+.stage{display:grid;place-items:center}
+.stage>*{grid-area:1/1}
+.mist{width:min(520px,90%);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(242,217,201,.6),rgba(185,169,201,.25) 45%,transparent 70%);filter:blur(28px);opacity:0;transform:scale(.2);animation:puff 2.6s ease-out .3s forwards;pointer-events:none}
+.hero-bottle{opacity:0;animation:fade 1.2s ease .4s forwards}
+.hero-bottle svg{width:min(300px,60vw);height:auto;display:block;animation:float 6s ease-in-out infinite}
+@keyframes clear{to{filter:blur(0);opacity:1}}
+@keyframes fade{to{opacity:1}}
+@keyframes puff{35%{opacity:.9}100%{opacity:0;transform:scale(2.2)}}
+@keyframes float{50%{transform:translateY(-14px)}}
+
+/* ---------- Collection ---------- */
+#collection{padding:100px 6vw}
+#collection h2{font-size:clamp(2.2rem,5vw,3.6rem)}
+.sub{color:var(--mist);margin:8px 0 48px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:28px}
+.card{background:var(--plum);border:1px solid rgba(242,217,201,.12);border-radius:20px;padding:28px;transition:transform .35s,border-color .35s,box-shadow .35s}
+.card:hover{transform:translateY(-8px);border-color:var(--amber);box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.card:hover .cap{transform:translateY(-12px) rotate(-10deg)}
+.reveal{opacity:0}
+.reveal.show{opacity:1;animation:rise .8s ease backwards;animation-delay:min(calc(var(--i)*90ms),450ms)}
+.bottle svg{width:72px;height:auto;display:block;margin-bottom:18px}
+.card h3{font-size:1.7rem;line-height:1.15}
+.card h3 a{text-decoration:none}
+.card h3 a:hover{color:var(--amber)}
+.desc{margin:12px 0 18px;font-size:.95rem;min-height:3em}
+.row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+.actions{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.empty{color:var(--mist);grid-column:1/-1}
+@media (max-width:800px){
+  .hero{grid-template-columns:1fr;padding-top:110px}
+  .stage{order:-1}
+}
+@media (prefers-reduced-motion:reduce){
+  h1,.hero p,.hero .btn,.hero-bottle,.reveal{opacity:1!important;filter:none!important}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="hero">
+  <div>
+    <h1>Wear a memory.</h1>
+    <p>Small-batch perfumes, from fresh citrus to deep oud. Find the one people ask you about.</p>
+    <a class="btn" href="#collection">Browse perfumes</a>
+  </div>
+
+  <div class="stage">
+    <div class="mist"></div>
+    <div class="hero-bottle">
+      <svg viewBox="0 0 200 300" aria-hidden="true">
+        <g class="cap">
+          <rect x="80" y="10" width="40" height="36" rx="6" fill="#e8a24a"/>
+          <rect x="88" y="46" width="24" height="16" fill="#b97c2c"/>
+        </g>
+        <rect x="30" y="62" width="140" height="220" rx="28" fill="rgba(242,217,201,.08)" stroke="#f2d9c9" stroke-opacity=".5" stroke-width="2"/>
+        <rect x="38" y="130" width="124" height="144" rx="22" fill="url(#amber)"/>
+        <rect x="52" y="80" width="10" height="180" rx="5" fill="#fff" opacity=".18"/>
+        <rect x="62" y="170" width="76" height="60" rx="4" fill="none" stroke="#14101a" stroke-opacity=".5"/>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<section id="collection">
+  <h2>Pick a scent</h2>
+  <p class="sub">Prices are per bottle.</p>
+
+  <div class="grid">
+    <!-- Django loops over the perfumes from the database -->
+    {% for perfume in perfumes %}
+    <article class="card reveal" style="--i:{{ forloop.counter0 }}">
+      <div class="bottle">
+        <svg viewBox="0 0 200 300" aria-hidden="true">
+          <g class="cap">
+            <rect x="80" y="10" width="40" height="36" rx="6" fill="#e8a24a"/>
+            <rect x="88" y="46" width="24" height="16" fill="#b97c2c"/>
+          </g>
+          <rect x="30" y="62" width="140" height="220" rx="28" fill="rgba(242,217,201,.08)" stroke="#f2d9c9" stroke-opacity=".5" stroke-width="2"/>
+          <rect class="liquid" x="38" y="130" width="124" height="144" rx="22" fill="url(#amber)"/>
+        </svg>
+      </div>
+      <h3><a href="{% url 'detail' perfume.id %}">{{ perfume.name }}</a></h3>
+      <p class="brand">{{ perfume.brand }}</p>
+      <p class="desc">{{ perfume.description|truncatechars:80 }}</p>
+      <div class="row">
+        <span class="price">{{ perfume.price }} SAR</span>
+        <span class="size">{{ perfume.size_ml }} ml</span>
+      </div>
+      <div class="actions">
+        <form method="post" action="{% url 'add_to_cart' perfume.id %}">
+          {% csrf_token %}
+          <button class="add" {% if not perfume.in_stock %}disabled{% endif %}>Add to cart</button>
+        </form>
+        {% if not perfume.in_stock %}<span class="tag out">Sold out</span>{% endif %}
+      </div>
+    </article>
+    {% empty %}
+    <p class="empty">No perfumes yet. Add your first one in the admin panel at /admin/.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Cards appear when they enter the screen
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('show');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+</script>
+{% endblock %}
