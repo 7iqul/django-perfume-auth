@@ -1,0 +1,18 @@
+services:
+  web:
+    build: .
+    environment:
+      DJANGO_SECRET_KEY: "${DJANGO_SECRET_KEY:?Set DJANGO_SECRET_KEY before starting Compose}"
+      DJANGO_DB_PATH: /data/db.sqlite3
+    ports:
+      - "127.0.0.1:${AMBRE_PORT:-8000}:8000"
+    volumes:
+      - ambre-data:/data
+    command: ["sh", "-c", "python manage.py migrate --noinput && exec python manage.py runserver 0.0.0.0:8000"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/', timeout=3).close()"]
+      interval: 3s
+      timeout: 4s
+      retries: 15
+volumes:
+  ambre-data:

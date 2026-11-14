@@ -1,5 +1,7 @@
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
@@ -56,7 +58,12 @@ def add_to_cart(request, perfume_id):
         cart[key] = cart.get(key, 0) + 1
         request.session['cart'] = cart
 
-    return redirect(request.META.get('HTTP_REFERER', 'home'))
+    referer = request.META.get('HTTP_REFERER')
+    if url_has_allowed_host_and_scheme(
+        referer, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        return redirect(referer)
+    return redirect('home')
 
 
 @require_POST
@@ -67,13 +74,17 @@ def remove_from_cart(request, perfume_id):
     return redirect('cart')
 
 
+@never_cache
 @login_required
 def cart(request):
     items = []
     total = 0
 
-    for pid, qty in request.session.get('cart', {}).items():
-        perfume = Perfume.objects.filter(id=pid).first()
+    quantities = request.session.get('cart', {})
+    perfumes = Perfume.objects.in_bulk(quantities)
+
+    for pid, qty in quantities.items():
+        perfume = perfumes.get(int(pid))
 
         if perfume:
             subtotal = perfume.price * qty
