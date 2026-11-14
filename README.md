@@ -13,7 +13,7 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-Open http://127.0.0.1:8000/. To add perfumes, run `python manage.py createsuperuser` and use `/admin/`. To reuse your local catalog and accounts, copy a backup of your original `db.sqlite3` to this folder before migrating. Keep your local database and signing key out of GitHub.
+Open http://127.0.0.1:8000/. Run `python manage.py seed_demo` to add three sample perfumes. To add your own perfumes, run `python manage.py createsuperuser` and use `/admin/`. To reuse your local catalog and accounts, copy a backup of your original `db.sqlite3` to this folder before migrating. Keep your local database and signing key out of GitHub.
 
 ## Run with Docker Compose
 
@@ -24,6 +24,7 @@ $env:DJANGO_SECRET_KEY = Read-Host "Enter a strong local signing key"
 $env:AMBRE_PORT = '8080'
 docker compose up --build --wait
 docker compose ps
+docker compose exec web python manage.py seed_demo
 docker compose exec web python manage.py createsuperuser
 ```
 
