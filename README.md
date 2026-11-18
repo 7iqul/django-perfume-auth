@@ -4,7 +4,7 @@ A Django perfume shop with a catalog, session-based cart, accounts and a REST AP
 
 ## Run on Windows
 
-Open PowerShell in this folder with a Python 3.14 virtual environment activated:
+Open PowerShell in this folder with a Python 3.14 virtual environment activated
 
 ```powershell
 python -m pip install -r requirements.txt
