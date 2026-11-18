@@ -4,12 +4,13 @@ permissions:
   contents: read
 jobs:
   django:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
     env:
       DJANGO_SECRET_KEY: ci-only-key-for-django-tests
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.14'
           cache: pip
@@ -20,12 +21,13 @@ jobs:
       - run: python manage.py test
       - run: CHROME_BINARY="$(command -v google-chrome)" CHROMEDRIVER="$(command -v chromedriver)" python manage.py test myapp.browser_checks
   docker:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
     env:
       DJANGO_SECRET_KEY: ci-only-key-for-docker
       AMBRE_PORT: 8080
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: docker compose up --build --wait --wait-timeout 90
       - run: curl --fail --silent http://127.0.0.1:8080/ | grep -F 'Ambre Perfumes'
       - run: docker compose exec -T web python manage.py test
